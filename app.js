@@ -1,11 +1,23 @@
 var mysql    = require ('mysql')
   , settings = require ('./settings')
-  , q        = require ('q');
+  , q        = require ('q')
+  , fs       = require ('fs');
 
 var connection = mysql.createConnection(settings.db);
 
 connection.connect();
 
+// load dictionaries
+console.log("Loading dictionaries...");
+
+var fNames = fs.readFileSync('./dicts/first_names.txt', {encoding: 'utf-8'}).split('\n')
+  , lNames = fs.readFileSync('./dicts/last_names.txt',  {encoding: 'utf-8'}).split('\n')
+  , words  = fs.readFileSync('./dicts/words.txt',       {encoding: 'utf-8'}).split('\n');
+
+console.log("Finished loading dictionaries.");
+
+
+// get tables
 return query("SHOW TABLES", [], connection)
 .then(function (tables) {
 

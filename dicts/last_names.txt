@@ -1,7 +1,3 @@
-# Common Anglo-Saxon surnames.
-#
-# From Bob Baldwin's collection from MIT
-#
 adams
 allen
 allison
