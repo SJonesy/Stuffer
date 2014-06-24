@@ -1,7 +1,8 @@
 var mysql    = require ('mysql')
   , settings = require ('./settings')
   , q        = require ('q')
-  , fs       = require ('fs');
+  , fs       = require ('fs')
+  , _        = require ('underscore');
 
 var connection = mysql.createConnection(settings.db);
 
@@ -26,6 +27,9 @@ return query("SHOW TABLES", [], connection)
     return table['Tables_in_' + settings.db.database];
   });
 
+  // get associations
+  var associations = getAssociations(tables);
+
   // fill the tables
   tables.forEach(function (table) {
 
@@ -43,9 +47,10 @@ return query("SHOW TABLES", [], connection)
 function query (sql, parameters, connection) {
   var defer = q.defer();
 
+  console.log('Executing query: ', sql);
+
   connection.query(sql, parameters, function (err, result) {
     if (err) {
-      console.log('mysql query error: ', err);
       return defer.reject(err)
     }
     defer.resolve(result);
@@ -65,8 +70,31 @@ function getColumns (table) {
   });
 }
 
+function getAssociations (tables) {
+  var sql = 'USE INFORMATION_SCHEMA; '
+          + 'SELECT TABLE_NAME, COLUMN_NAME, CONSTRAINT_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME '
+          + 'FROM KEY_COLUMN_USAGE '
+          + 'WHERE REFERENCED_TABLE_NAME IN ("' + tables.join('", "') + '");';
+
+  return query(sql, [], connection)
+  .then(function (associations) {
+
+    associations = associations[1].map(function (association) {
+      if (!!association.REFERENCED_TABLE_NAME && !!association.REFERENCED_COLUMN_NAME)
+        return association;
+    });
+
+    // remove null entries from not returning a value with .map
+    associations = _.compact(associations);
+
+    console.log(associations);
+
+  });
+}
+
 function fill (table, columns) {
 
-
+  // console.log(table);
+  // console.log(columns);
 
 }
