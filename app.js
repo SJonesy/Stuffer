@@ -6,7 +6,6 @@ var connection = mysql.createConnection(settings.db);
 
 connection.connect();
 
-
 return query("SHOW TABLES", [], connection)
 .then(function (tables) {
 
