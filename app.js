@@ -14,10 +14,16 @@ return query("SHOW TABLES", [], connection)
     return table['Tables_in_' + settings.db.database];
   });
 
+  // fill the tables
   tables.forEach(function (table) {
-    fillTable(table);
-  });
 
+    return getColumns(table)
+    .then(function (columns) {
+
+      fill(table, columns);
+
+    });
+  });
 });
 
 
@@ -36,15 +42,6 @@ function query (sql, parameters, connection) {
   return defer.promise;
 }
 
-function fillTable (table) {
-  return getColumns(table)
-  .then(function (columns) {
-
-    console.log(columns);
-
-  });
-}
-
 function getColumns (table) {
   var sql = "SHOW COLUMNS FROM " + table;
 
@@ -54,4 +51,10 @@ function getColumns (table) {
     return q(columns);
 
   });
+}
+
+function fill (table, columns) {
+
+
+
 }
